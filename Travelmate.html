@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelMate — Connect. Explore. Share.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;
+  --bg2:#12121a;
+  --bg3:#1a1a26;
+  --bg4:#222232;
+  --card:#16161f;
+  --border:#2a2a3d;
+  --border2:#3a3a55;
+  --accent:#6C63FF;
+  --accent2:#ff6584;
+  --accent3:#43e97b;
+  --accent4:#f9ca24;
+  --text:#f0f0fa;
+  --text2:#9494b8;
+  --text3:#5a5a7a;
+  --font:'Syne',sans-serif;
+  --body:'DM Sans',sans-serif;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-lg:20px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--body)}
+
+/* OTP OVERLAY */
+#otp-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(10,10,15,0.95);
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+}
+.otp-box{
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  padding:48px 52px;
+  max-width:480px;width:90%;
+  text-align:center;
+  animation:slideUp 0.4s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.otp-logo{font-family:var(--font);font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.otp-logo span{color:var(--accent)}
+.otp-sub{color:var(--text2);font-size:14px;margin-bottom:32px;line-height:1.6}
+.otp-phone{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--body);font-size:15px;color:var(--text);width:100%;margin-bottom:20px;outline:none}
+.otp-phone:focus{border-color:var(--accent)}
+.otp-digits{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
+.otp-digit{
+  width:52px;height:60px;
+  background:var(--bg3);border:1.5px solid var(--border);
+  border-radius:10px;font-size:22px;font-weight:700;
+  text-align:center;color:var(--text);outline:none;
+  font-family:var(--font);
+  transition:border-color 0.2s,background 0.2s;
+}
+.otp-digit:focus{border-color:var(--accent);background:rgba(108,99,255,0.08)}
+.otp-digit.filled{border-color:var(--accent)}
+.otp-btn{
+  width:100%;padding:14px;background:var(--accent);
+  color:#fff;border:none;border-radius:var(--radius-sm);
+  font-family:var(--font);font-size:15px;font-weight:700;
+  cursor:pointer;transition:opacity 0.2s,transform 0.1s;letter-spacing:0.3px;
+}
+.otp-btn:hover{opacity:0.88}
+.otp-btn:active{transform:scale(0.98)}
+.otp-resend{color:var(--text3);font-size:13px;margin-top:16px}
+.otp-resend a{color:var(--accent);cursor:pointer;text-decoration:none}
+.otp-success{display:none;flex-direction:column;align-items:center;gap:12px}
+.checkmark{width:64px;height:64px;border-radius:50%;background:rgba(67,233,123,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;animation:popIn 0.4s ease}
+@keyframes popIn{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.otp-step2{display:none}
+
+/* APP LAYOUT */
+#app{display:none;height:100vh;flex-direction:column}
+.topbar{
+  height:56px;background:rgba(10,10,15,0.9);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:16px;
+  position:sticky;top:0;z-index:100;flex-shrink:0;
+}
+.topbar-logo{font-family:var(--font);font-weight:800;font-size:18px;letter-spacing:-0.5px;margin-right:8px}
+.topbar-logo span{color:var(--accent)}
+.topbar-search{
+  flex:1;max-width:320px;height:34px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;display:flex;align-items:center;gap:8px;
+  padding:0 14px;font-size:13px;color:var(--text2);cursor:text;
+}
+.topbar-search svg{opacity:0.5;flex-shrink:0}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.icon-btn{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background 0.2s;position:relative;
+}
+.icon-btn:hover{background:var(--bg4)}
+.icon-btn svg{opacity:0.7}
+.badge{
+  position:absolute;top:-2px;right:-2px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--accent2);font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bg);
+}
+.avatar-sm{width:32px;height:32px;border-radius:50%;object-fit:cover;cursor:pointer;border:2px solid var(--accent)}
+.avatar-sm-placeholder{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;border:2px solid transparent}
+
+/* MAIN LAYOUT */
+.app-body{display:flex;flex:1;overflow:hidden}
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:var(--bg);border-right:1px solid var(--border);
+  padding:16px 12px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:4px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:var(--radius-sm);
+  cursor:pointer;font-size:14px;font-weight:500;
+  color:var(--text2);transition:all 0.15s;
+  font-family:var(--font);
+}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(108,99,255,0.15);color:var(--accent)}
+.nav-item svg{flex-shrink:0;opacity:0.8}
+.nav-section{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text3);padding:16px 12px 4px;text-transform:uppercase}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;font-family:var(--body)}
+
+/* CONTENT AREA */
+.content{flex:1;overflow-y:auto;background:var(--bg)}
+.page{display:none;min-height:100%}
+.page.active{display:block}
+
+/* FEED PAGE */
+.feed-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;padding:24px;max-width:1100px;margin:0 auto}
+.stories-row{
+  display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;margin-bottom:24px;
+  scrollbar-width:none;
+}
+.stories-row::-webkit-scrollbar{display:none}
+.story-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
+.story-ring{
+  width:60px;height:60px;border-radius:50%;padding:2px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  position:relative;
+}
+.story-ring.seen{background:var(--border2)}
+.story-inner{width:100%;height:100%;border-radius:50%;background:var(--bg3);border:2px solid var(--bg);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px}
+.story-name{font-size:11px;color:var(--text2);max-width:62px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.online-dot{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--accent3);border:2px solid var(--bg)}
+
+.chips-row{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;scrollbar-width:none;padding-bottom:4px}
+.chip{
+  padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;
+  background:var(--bg3);border:1px solid var(--border);
+  cursor:pointer;white-space:nowrap;font-family:var(--font);
+  transition:all 0.15s;color:var(--text2);
+}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.post-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:16px;overflow:hidden;
+}
+.post-header{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.post-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative}
+.post-info{flex:1}
+.post-name{font-weight:700;font-size:14px;font-family:var(--font)}
+.post-loc{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-top:2px}
+.post-time{font-size:11px;color:var(--text3);margin-left:auto}
+.follow-btn{
+  padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;
+  background:transparent;border:1px solid var(--accent);color:var(--accent);
+  cursor:pointer;font-family:var(--font);transition:all 0.15s;
+}
+.follow-btn:hover,.follow-btn.following{background:var(--accent);color:#fff}
+.post-img{
+  width:100%;height:280px;overflow:hidden;
+  background:var(--bg3);display:flex;align-items:center;justify-content:center;
+  font-size:80px;position:relative;
+}
+.post-img-label{
+  position:absolute;bottom:12px;left:12px;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+  color:#fff;font-size:12px;font-weight:600;
+  padding:4px 10px;border-radius:20px;font-family:var(--font);
+}
+.post-actions{display:flex;align-items:center;gap:4px;padding:12px 16px}
+.act-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 12px;border-radius:20px;font-size:13px;
+  background:transparent;border:none;color:var(--text2);cursor:pointer;
+  font-family:var(--body);transition:all 0.15s;
+}
+.act-btn:hover{background:var(--bg3);color:var(--text)}
+.act-btn.liked{color:var(--accent2)}
+.act-btn.bookmarked{color:var(--accent4)}
+.act-btn svg{flex-shrink:0}
+.post-caption{padding:0 16px 16px;font-size:14px;line-height:1.7;color:var(--text2)}
+.post-caption strong{color:var(--text)}
+
+/* SIDEBAR WIDGETS */
+.widget{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.widget-title{font-family:var(--font);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.widget-title span{margin-left:auto;font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;font-family:var(--body)}
+.trend-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.trend-item:last-child{border-bottom:none}
+.trend-emoji{font-size:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--bg3);border-radius:10px}
+.trend-info{flex:1}
+.trend-name{font-size:13px;font-weight:600}
+.trend-country{font-size:11px;color:var(--text3)}
+.trend-growth{font-size:12px;font-weight:700;color:var(--accent3)}
+.suggest-item{display:flex;align-items:center;gap:10px;padding:8px 0}
+.suggest-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f9ca24,#f0932b);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.suggest-name{font-size:13px;font-weight:600;font-family:var(--font)}
+.suggest-match{font-size:11px;color:var(--accent3)}
+.suggest-follow{margin-left:auto;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:transparent;border:1px solid var(--accent);color:var(--accent);cursor:pointer;font-family:var(--font);transition:all 0.15s}
+.suggest-follow:hover{background:var(--accent);color:#fff}
+.live-item{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--accent3);flex-shrink:0;box-shadow:0 0 6px var(--accent3)}
+.live-dot.away{background:var(--accent4);box-shadow:0 0 6px var(--accent4)}
+.live-dot.offline{background:var(--text3);box-shadow:none}
+
+/* GROUPS PAGE */
+.page-header{padding:24px 24px 0;margin-bottom:20px}
+.page-title{font-family:var(--font);font-size:24px;font-weight:800}
+.page-sub{color:var(--text2);font-size:14px;margin-top:4px}
+.groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:0 24px 24px}
+.group-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;cursor:pointer;
+  transition:border-color 0.2s,transform 0.15s;
+}
+.group-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.group-banner{height:100px;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative;background:var(--bg3)}
+.group-badge{
+  position:absolute;top:8px;right:8px;
+  padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;
+  font-family:var(--font);display:flex;align-items:center;gap:4px;
+}
+.group-badge.public{background:rgba(67,233,123,0.2);color:#43e97b}
+.group-badge.private{background:rgba(249,202,36,0.2);color:#f9ca24}
+.group-body{padding:14px}
+.group-name{font-family:var(--font);font-weight:700;font-size:15px;margin-bottom:4px}
+.group-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:12px}
+.group-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.member-stack{display:flex}
+.member-stack span{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid var(--card);margin-left:-6px}
+.member-stack span:first-child{margin-left:0}
+.group-count{font-size:12px;color:var(--text2);margin-left:6px}
+.group-category{font-size:11px;color:var(--accent);background:rgba(108,99,255,0.1);padding:2px 8px;border-radius:10px;font-weight:600;margin-left:auto}
+.join-btn{
+  width:100%;padding:8px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;
+  background:var(--accent);border:none;color:#fff;cursor:pointer;font-family:var(--font);
+  transition:opacity 0.2s;
+}
+.join-btn:hover{opacity:0.85}
+.join-btn.joined{background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+.groups-toolbar{display:flex;align-items:center;gap:12px;padding:0 24px;margin-bottom:16px;flex-wrap:wrap}
+.create-group-btn{
+  margin-left:auto;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:700;
+  background:var(--accent);border:none;color:#fff;cursor:pointer;font-family:var(--font);
+  display:flex;align-items:center;gap:6px;
+}
+
+/* CHAT PAGE */
+.chat-layout{display:flex;height:100%;overflow:hidden}
+.chat-list{width:300px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;background:var(--bg)}
+.chat-list-header{padding:16px;border-bottom:1px solid var(--border);font-family:var(--font);font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:space-between}
+.chat-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;cursor:pointer;transition:background 0.15s;
+  border-bottom:1px solid var(--border);
+}
+.chat-item:hover,.chat-item.active{background:var(--bg3)}
+.chat-item.active{border-right:3px solid var(--accent)}
+.chat-avatar{position:relative;flex-shrink:0}
+.chat-avatar-img{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#6C63FF,#ff6584);display:flex;align-items:center;justify-content:center;font-size:18px}
+.chat-status{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;border:2px solid var(--bg);background:var(--accent3)}
+.chat-status.away{background:var(--accent4)}
+.chat-status.offline{background:var(--text3)}
+.chat-info{flex:1;min-width:0}
+.chat-name{font-size:14px;font-weight:600;font-family:var(--font)}
+.chat-preview{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.chat-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.chat-time{font-size:11px;color:var(--text3)}
+.unread-badge{background:var(--accent);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700}
+
+.chat-window{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chat-topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  background:rgba(10,10,15,0.9);backdrop-filter:blur(8px);
+}
+.chat-user-info{flex:1}
+.chat-user-name{font-family:var(--font);font-weight:700;font-size:15px}
+.chat-user-status{font-size:12px;color:var(--accent3)}
+.call-btns{display:flex;gap:8px}
+.call-btn{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;color:var(--text2)}
+.call-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:10px;max-width:75%}
+.msg.sent{align-self:flex-end;flex-direction:row-reverse}
+.msg-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;align-self:flex-end}
+.msg-bubble{
+  padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.6;
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+}
+.msg.sent .msg-bubble{background:var(--accent);border-color:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.msg.received .msg-bubble{border-bottom-left-radius:4px}
+.msg-time{font-size:10px;color:var(--text3);margin-top:4px;text-align:right}
+.msg.received .msg-time{text-align:left}
+.typing-indicator{display:flex;gap:10px;align-items:center;padding:0 20px 8px;color:var(--text2);font-size:13px}
+.typing-dots{display:flex;gap:4px}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--text2);animation:bounce 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:0.2s}
+.typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-input-bar{display:flex;align-items:center;gap:10px;padding:12px 20px;border-top:1px solid var(--border);background:var(--bg)}
+.chat-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text);font-family:var(--body);font-size:14px;outline:none;resize:none}
+.chat-input:focus{border-color:var(--accent)}
+.send-btn{width:40px;height:40px;border-radius:50%;background:var(--accent);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s}
+.send-btn:hover{opacity:0.85}
+
+/* TRACKING PAGE */
+.tracking-layout{padding:24px;max-width:900px;margin:0 auto}
+.map-container{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);height:320px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.map-bg{width:100%;height:100%;opacity:0.3;background:radial-gradient(ellipse at 30% 60%, rgba(108,99,255,0.3) 0%, transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(255,101,132,0.2) 0%, transparent 50%), var(--bg3)}
+.map-svg{position:absolute;inset:0;width:100%;height:100%}
+.map-label{position:absolute;top:12px;left:12px;font-family:var(--font);font-size:14px;font-weight:700;background:rgba(10,10,15,0.8);padding:6px 12px;border-radius:8px;backdrop-filter:blur(8px)}
+.pin{position:absolute;cursor:pointer}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 4px rgba(108,99,255,0.3),0 0 0 8px rgba(108,99,255,0.1)}
+.pin-dot.flight{background:var(--accent4);box-shadow:0 0 0 4px rgba(249,202,36,0.3),0 0 0 8px rgba(249,202,36,0.1)}
+.pin-dot.hotel{background:var(--accent3);box-shadow:0 0 0 4px rgba(67,233,123,0.3),0 0 0 8px rgba(67,233,123,0.1)}
+.pin-label{position:absolute;left:18px;top:50%;transform:translateY(-50%);background:rgba(10,10,15,0.85);backdrop-filter:blur(6px);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(108,99,255,0.3),0 0 0 8px rgba(108,99,255,0.1)}50%{box-shadow:0 0 0 8px rgba(108,99,255,0.2),0 0 0 16px rgba(108,99,255,0.05)}}
+.pin-dot{animation:pulse 2s ease infinite}
+@keyframes pulseY{0%,100%{box-shadow:0 0 0 4px rgba(249,202,36,0.3),0 0 0 8px rgba(249,202,36,0.1)}50%{box-shadow:0 0 0 8px rgba(249,202,36,0.2),0 0 0 16px rgba(249,202,36,0.05)}}
+.pin-dot.flight{animation:pulseY 2s ease infinite}
+@keyframes pulseG{0%,100%{box-shadow:0 0 0 4px rgba(67,233,123,0.3),0 0 0 8px rgba(67,233,123,0.1)}50%{box-shadow:0 0 0 8px rgba(67,233,123,0.2),0 0 0 16px rgba(67,233,123,0.05)}}
+.pin-dot.hotel{animation:pulseG 2s ease infinite}
+
+.track-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+.track-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.track-type{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.track-icon{font-size:24px}
+.track-route{font-family:var(--font);font-size:16px;font-weight:800}
+.track-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:var(--font);margin-bottom:10px}
+.status-badge.ontime{background:rgba(67,233,123,0.15);color:#43e97b}
+.status-badge.delayed{background:rgba(255,101,132,0.15);color:#ff6584}
+.status-badge.boarding{background:rgba(249,202,36,0.15);color:#f9ca24}
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s ease}
+.progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text3)}
+
+/* HOTELS PAGE */
+.hotels-layout{padding:24px;max-width:1000px;margin:0 auto}
+.hotel-search{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px}
+.hotel-search-grid{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px;align-items:end}
+.field-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;font-family:var(--font)}
+.field-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-family:var(--body);font-size:14px;outline:none;width:100%}
+.field-input:focus{border-color:var(--accent)}
+.search-btn{padding:10px 24px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.hotels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.hotel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color 0.2s,transform 0.15s;cursor:pointer}
+.hotel-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.hotel-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:64px;background:var(--bg3);position:relative}
+.hotel-stars{position:absolute;bottom:8px;right:8px;background:rgba(10,10,15,0.8);padding:3px 8px;border-radius:6px;font-size:12px}
+.hotel-info{padding:14px}
+.hotel-name{font-family:var(--font);font-weight:700;font-size:15px;margin-bottom:4px}
+.hotel-loc{font-size:12px;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:4px}
+.hotel-feats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.feat-tag{font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text2)}
+.hotel-footer{display:flex;align-items:center;justify-content:space-between}
+.hotel-price{font-family:var(--font);font-size:18px;font-weight:800}
+.hotel-price span{font-size:11px;font-weight:400;color:var(--text2)}
+.book-btn{padding:7px 16px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer}
+
+/* PROFILE PAGE */
+.profile-layout{max-width:800px;margin:0 auto;padding-bottom:40px}
+.profile-banner{height:200px;background:linear-gradient(135deg,rgba(108,99,255,0.4),rgba(255,101,132,0.3));position:relative;overflow:hidden}
+.profile-banner-art{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:120px;opacity:0.15}
+.profile-avatar-wrap{position:absolute;bottom:-36px;left:32px}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:32px;border:4px solid var(--bg);box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.profile-body{padding:52px 32px 24px}
+.profile-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.profile-name{font-family:var(--font);font-size:22px;font-weight:800}
+.profile-handle{font-size:14px;color:var(--text2);margin-top:2px}
+.edit-btn{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;background:transparent;border:1px solid var(--border2);color:var(--text);cursor:pointer;font-family:var(--font)}
+.profile-bio{font-size:14px;line-height:1.7;color:var(--text2);margin-bottom:16px;max-width:500px}
+.profile-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.profile-tag{font-size:12px;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.3);color:var(--accent);padding:4px 12px;border-radius:20px;font-weight:600}
+.profile-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center}
+.stat-num{font-family:var(--font);font-size:22px;font-weight:800}
+.stat-label{font-size:11px;color:var(--text2);margin-top:2px;text-transform:uppercase;letter-spacing:0.8px}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:var(--radius);overflow:hidden}
+.photo-item{aspect-ratio:1;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:42px;cursor:pointer;transition:transform 0.2s;overflow:hidden}
+.photo-item:hover{transform:scale(1.03)}
+
+/* RATINGS PAGE */
+.ratings-layout{padding:24px;max-width:900px;margin:0 auto}
+.ratings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:20px}
+.rating-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.rater-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.rater-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#f9ca24,#6C63FF);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.rater-name{font-family:var(--font);font-weight:700;font-size:15px}
+.rater-role{font-size:12px;color:var(--text2);margin-top:2px}
+.overall-score{margin-left:auto;font-family:var(--font);font-size:28px;font-weight:800}
+.overall-score span{font-size:14px;font-weight:400;color:var(--text2)}
+.stars-row{display:flex;gap:3px;color:var(--accent4);font-size:16px;margin-bottom:12px}
+.cat-bars{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.cat-row{display:flex;align-items:center;gap:8px}
+.cat-name{font-size:12px;color:var(--text2);width:100px;flex-shrink:0}
+.cat-bar{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.cat-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent4));border-radius:3px}
+.cat-score{font-size:12px;font-weight:700;width:24px;text-align:right;flex-shrink:0}
+.review-text{font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--border);padding-top:12px;font-style:italic}
+.reviews-list{margin-top:16px;display:flex;flex-direction:column;gap:12px}
+.mini-review{background:var(--bg3);border-radius:var(--radius-sm);padding:12px}
+.mini-rev-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mini-rev-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:12px}
+.mini-rev-name{font-size:13px;font-weight:600;flex:1;font-family:var(--font)}
+.mini-rev-stars{color:var(--accent4);font-size:12px}
+.mini-rev-text{font-size:12px;color:var(--text2);line-height:1.6}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:var(--radius-lg);padding:32px;
+  max-width:480px;width:90%;max-height:80vh;overflow-y:auto;
+  animation:slideUp 0.3s ease;
+}
+.modal-title{font-family:var(--font);font-size:18px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;line-height:1}
+.modal-field{margin-bottom:16px}
+.modal-select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-family:var(--body);font-size:14px;outline:none;width:100%}
+.modal-textarea{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-family:var(--body);font-size:14px;outline:none;width:100%;resize:vertical;min-height:80px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.toggle-label{font-size:14px}
+.toggle{width:44px;height:24px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;position:relative;transition:background 0.2s}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle-knob{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s}
+.toggle.on .toggle-knob{left:23px}
+.modal-submit{width:100%;padding:12px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* RESPONSIVE HELPERS */
+.flex-center{display:flex;align-items:center;justify-content:center}
+.gap-8{gap:8px}
+.mt-16{margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- OTP OVERLAY -->
+<div id="otp-overlay">
+  <div class="otp-box">
+    <div class="otp-logo">Travel<span>Mate</span></div>
+    <p class="otp-sub">Connect with fellow explorers worldwide.<br>Enter your number to get started.</p>
+    
+    <!-- Step 1: Phone -->
+    <div id="otp-step1">
+      <input class="otp-phone" type="tel" id="phone-input" placeholder="+1 (555) 000-0000" value="+1 (555) 882-7364">
+      <button class="otp-btn" onclick="sendOTP()">Send verification code</button>
+    </div>
+
+    <!-- Step 2: OTP -->
+    <div id="otp-step2" class="otp-step2">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Enter the 6-digit code sent to <strong id="phone-display" style="color:var(--text)"></strong></p>
+      <div class="otp-digits">
+        <input class="otp-digit" maxlength="1" id="d0" oninput="otpInput(0,this)" onkeydown="otpBack(0,event)" inputmode="numeric">
+        <input class="otp-digit" maxlength="1" id="d1" oninput="otpInput(1,this)" onkeydown="otpBack(1,event)" inputmode="numeric">
+        <input class="otp-digit" maxlength="1" id="d2" oninput="otpInput(2,this)" onkeydown="otpBack(2,event)" inputmode="numeric">
+        <input class="otp-digit" maxlength="1" id="d3" oninput="otpInput(3,this)" onkeydown="otpBack(3,event)" inputmode="numeric">
+        <input class="otp-digit" maxlength="1" id="d4" oninput="otpInput(4,this)" onkeydown="otpBack(4,event)" inputmode="numeric">
+        <input class="otp-digit" maxlength="1" id="d5" oninput="otpInput(5,this)" onkeydown="otpBack(5,event)" inputmode="numeric">
+      </div>
+      <button class="otp-btn" onclick="verifyOTP()">Verify &amp; Continue</button>
+      <div class="otp-resend">Didn't get it? <a id="resend-link" onclick="resendOTP()">Resend in <span id="countdown">30</span>s</a></div>
+    </div>
+
+    <!-- Success -->
+    <div id="otp-success" class="otp-success">
+      <div class="checkmark">✓</div>
+      <div style="font-family:var(--font);font-size:18px;font-weight:800">Welcome aboard! 🌍</div>
+      <div style="color:var(--text2);font-size:14px">Launching your TravelMate experience…</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">Travel<span>Mate</span></div>
+    <div class="topbar-search">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Search destinations, travelers…
+    </div>
+    <div class="topbar-actions">
+      <div class="icon-btn" onclick="showPage('chat')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div class="badge">3</div>
+      </div>
+      <div class="icon-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="badge">7</div>
+      </div>
+      <div class="avatar-sm-placeholder" onclick="showPage('profile')">AJ</div>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="nav-section">Explore</div>
+      <div class="nav-item active" onclick="showPage('feed')" id="nav-feed">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Feed
+      </div>
+      <div class="nav-item" onclick="showPage('groups')" id="nav-groups">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Groups
+        <div class="nav-badge">12</div>
+      </div>
+      <div class="nav-item" onclick="showPage('chat')" id="nav-chat">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+        <div class="nav-badge">3</div>
+      </div>
+      <div class="nav-section">My Trips</div>
+      <div class="nav-item" onclick="showPage('tracking')" id="nav-tracking">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Live Tracking
+      </div>
+      <div class="nav-item" onclick="showPage('hotels')" id="nav-hotels">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Hotels
+      </div>
+      <div class="nav-section">Profile</div>
+      <div class="nav-item" onclick="showPage('profile')" id="nav-profile">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </div>
+      <div class="nav-item" onclick="showPage('ratings')" id="nav-ratings">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Ratings
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- FEED PAGE -->
+      <div class="page active" id="page-feed">
+        <div class="feed-layout">
+          <div>
+            <!-- Stories -->
+            <div class="stories-row">
+              <div class="story-item">
+                <div class="story-ring">
+                  <div class="story-inner">➕</div>
+                </div>
+                <div class="story-name">Add Story</div>
+              </div>
+              <div class="story-item" onclick="this.querySelector('.story-ring').classList.add('seen')">
+                <div class="story-ring" style="position:relative">
+                  <div class="story-inner">🏄</div>
+                  <div class="online-dot"></div>
+                </div>
+                <div class="story-name">@mia_surf</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring">
+                  <div class="story-inner">🧗</div>
+                </div>
+                <div class="story-name">@alex_peak</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring">
+                  <div class="story-inner">🍜</div>
+                </div>
+                <div class="story-name">@ramen_rei</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring">
+                  <div class="story-inner">🚁</div>
+                </div>
+                <div class="story-name">@sky_jess</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring seen">
+                  <div class="story-inner">🎿</div>
+                </div>
+                <div class="story-name">@snow_leo</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring seen">
+                  <div class="story-inner">⛵</div>
+                </div>
+                <div class="story-name">@sail_nina</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring">
+                  <div class="story-inner">🦁</div>
+                </div>
+                <div class="story-name">@safari_ko</div>
+              </div>
+            </div>
+
+            <!-- Chips -->
+            <div class="chips-row">
+              <div class="chip active" onclick="filterChip(this)">All</div>
+              <div class="chip" onclick="filterChip(this)">🏔️ Mountains</div>
+              <div class="chip" onclick="filterChip(this)">🏖️ Beaches</div>
+              <div class="chip" onclick="filterChip(this)">🏙️ Cities</div>
+              <div class="chip" onclick="filterChip(this)">🌿 Nature</div>
+              <div class="chip" onclick="filterChip(this)">🍽️ Food Tours</div>
+              <div class="chip" onclick="filterChip(this)">🎭 Culture</div>
+              <div class="chip" onclick="filterChip(this)">🚂 Road Trips</div>
+              <div class="chip" onclick="filterChip(this)">🏕️ Camping</div>
+            </div>
+
+            <!-- Posts -->
+            <div class="post-card">
+              <div class="post-header">
+                <div class="post-avatar" style="background:linear-gradient(135deg,#f9ca24,#f0932b)">🤿</div>
+                <div class="post-info">
+                  <div class="post-name">Aria Chen</div>
+                  <div class="post-loc">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Maldives, Baa Atoll
+                  </div>
+                </div>
+                <div class="post-time">2h ago</div>
+                <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+              </div>
+              <div class="post-img">
+                🌊
+                <div class="post-img-label">📍 Maldives</div>
+              </div>
+              <div class="post-actions">
+                <button class="act-btn" onclick="toggleLike(this)">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  <span class="like-count">1,284</span>
+                </button>
+                <button class="act-btn">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  89
+                </button>
+                <button class="act-btn" onclick="toggleBookmark(this)">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  Save
+                </button>
+                <button class="act-btn" style="margin-left:auto">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  Share
+                </button>
+              </div>
+              <div class="post-caption"><strong>Crystal waters of Baa Atoll 🐠</strong> The snorkeling here is absolutely otherworldly. Found a manta ray cleaning station — watched 6 of them glide past for nearly an hour. If you haven't done the Maldives, this is your sign. <span style="color:var(--accent)">#Maldives #Snorkeling #OceanLife</span></div>
+            </div>
+
+            <div class="post-card">
+              <div class="post-header">
+                <div class="post-avatar" style="background:linear-gradient(135deg,#6C63FF,#43e97b)">🏔️</div>
+                <div class="post-info">
+                  <div class="post-name">Marco Villarreal</div>
+                  <div class="post-loc">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Patagonia, Chile
+                  </div>
+                </div>
+                <div class="post-time">5h ago</div>
+                <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
+              </div>
+              <div class="post-img" style="font-size:90px">
+                🏔️
+                <div class="post-img-label">📍 Torres del Paine</div>
+              </div>
+              <div class="post-actions">
+                <button class="act-btn liked" onclick="toggleLike(this)">
+                  <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  <span class="like-count">3,019</span>
+                </button>
+                <button class="act-btn">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  213
+                </button>
+                <button class="act-btn bookmarked" onclick="toggleBookmark(this)">
+                  <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  Saved
+                </button>
+                <button class="act-btn" style="margin-left:auto">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  Share
+                </button>
+              </div>
+              <div class="post-caption"><strong>Day 4 on the W Trek ⛰️</strong> Legs screaming, soul singing. The towers appeared at golden hour and I genuinely teared up. Campsite Chileno is a hidden gem — book early! <span style="color:var(--accent)">#Patagonia #Trekking #TorresDelPaine</span></div>
+            </div>
+
+            <div class="post-card">
+              <div class="post-header">
+                <div class="post-avatar" style="background:linear-gradient(135deg,#ff6584,#f9ca24)">🌸</div>
+                <div class="post-info">
+                  <div class="post-name">Yuki Tanaka</div>
+                  <div class="post-loc">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Kyoto, Japan
+                  </div>
+                </div>
+                <div class="post-time">8h ago</div>
+                <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+              </div>
+              <div class="post-img" style="font-size:90px">⛩️</div>
+              <div class="post-actions">
+                <button class="act-btn" onclick="toggleLike(this)">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  <span class="like-count">5,421</span>
+                </button>
+                <button class="act-btn">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  341
+                </button>
+                <button class="act-btn" onclick="toggleBookmark(this)">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  Save
+                </button>
+                <button class="act-btn" style="margin-left:auto">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  Share
+                </button>
+              </div>
+              <div class="post-caption"><strong>Fushimi Inari at dawn 🌅</strong> Got there at 5:30am — completely alone. The vermillion gates stretch up the entire mountain. One of those places that makes you feel genuinely small. <span style="color:var(--accent)">#Kyoto #Japan #SacredSpaces</span></div>
+            </div>
+          </div>
+
+          <!-- RIGHT SIDEBAR -->
+          <div>
+            <!-- Live activity -->
+            <div class="widget">
+              <div class="widget-title">
+                <span style="color:var(--accent3);margin:0">●</span> Live Now
+                <span>See all</span>
+              </div>
+              <div class="live-item"><div class="live-dot"></div><div><strong>@mia_surf</strong> is in Bali, Indonesia</div></div>
+              <div class="live-item"><div class="live-dot"></div><div><strong>@alex_peak</strong> is in Dolomites, Italy</div></div>
+              <div class="live-item"><div class="live-dot away"></div><div><strong>@ramen_rei</strong> last seen 14m ago</div></div>
+              <div class="live-item"><div class="live-dot"></div><div><strong>@safari_ko</strong> is in Maasai Mara</div></div>
+              <div class="live-item"><div class="live-dot offline"></div><div><strong>@snow_leo</strong> last seen 3h ago</div></div>
+            </div>
+
+            <!-- Trending -->
+            <div class="widget">
+              <div class="widget-title">🔥 Trending Destinations <span>View all</span></div>
+              <div class="trend-item">
+                <div class="trend-emoji">🇯🇵</div>
+                <div class="trend-info">
+                  <div class="trend-name">Kyoto, Japan</div>
+                  <div class="trend-country">Asia · Cherry Blossom Season</div>
+                </div>
+                <div class="trend-growth">+128%</div>
+              </div>
+              <div class="trend-item">
+                <div class="trend-emoji">🇨🇱</div>
+                <div class="trend-info">
+                  <div class="trend-name">Patagonia, Chile</div>
+                  <div class="trend-country">South America · Trekking</div>
+                </div>
+                <div class="trend-growth">+94%</div>
+              </div>
+              <div class="trend-item">
+                <div class="trend-emoji">🇲🇻</div>
+                <div class="trend-info">
+                  <div class="trend-name">Baa Atoll, Maldives</div>
+                  <div class="trend-country">Indian Ocean · Diving</div>
+                </div>
+                <div class="trend-growth">+76%</div>
+              </div>
+              <div class="trend-item">
+                <div class="trend-emoji">🇮🇸</div>
+                <div class="trend-info">
+                  <div class="trend-name">Reykjavík, Iceland</div>
+                  <div class="trend-country">Europe · Northern Lights</div>
+                </div>
+                <div class="trend-growth">+61%</div>
+              </div>
+              <div class="trend-item">
+                <div class="trend-emoji">🇵🇪</div>
+                <div class="trend-info">
+                  <div class="trend-name">Machu Picchu, Peru</div>
+                  <div class="trend-country">South America · Heritage</div>
+                </div>
+                <div class="trend-growth">+55%</div>
+              </div>
+            </div>
+
+            <!-- Suggestions -->
+            <div class="widget">
+              <div class="widget-title">✨ Suggested Travelers <span>Refresh</span></div>
+              <div class="suggest-item">
+                <div class="suggest-avatar">🏄</div>
+                <div>
+                  <div class="suggest-name">Sofia Reyes</div>
+                  <div class="suggest-match">94% match · Beach & Surf</div>
+                </div>
+                <button class="suggest-follow" onclick="toggleSuggestFollow(this)">+ Follow</button>
+              </div>
+              <div class="suggest-item">
+                <div class="suggest-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">🧗</div>
+                <div>
+                  <div class="suggest-name">Kai Nakamura</div>
+                  <div class="suggest-match">88% match · Mountain Trekking</div>
+                </div>
+                <button class="suggest-follow" onclick="toggleSuggestFollow(this)">+ Follow</button>
+              </div>
+              <div class="suggest-item">
+                <div class="suggest-avatar" style="background:linear-gradient(135deg,#f9ca24,#6C63FF)">🍜</div>
+                <div>
+                  <div class="suggest-name">Priya Mehta</div>
+                  <div class="suggest-match">82% match · Food & Culture</div>
+                </div>
+                <button class="suggest-follow" onclick="toggleSuggestFollow(this)">+ Follow</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GROUPS PAGE -->
+      <div class="page" id="page-groups">
+        <div class="page-header">
+          <div class="page-title">Travel Groups</div>
+          <div class="page-sub">Find your tribe, plan epic adventures together</div>
+        </div>
+        <div class="groups-toolbar">
+          <div class="chips-row" style="margin:0;flex:1">
+            <div class="chip active" onclick="filterChip(this)">All Groups</div>
+            <div class="chip" onclick="filterChip(this)">🏔️ Adventure</div>
+            <div class="chip" onclick="filterChip(this)">🍽️ Food</div>
+            <div class="chip" onclick="filterChip(this)">🎒 Backpacking</div>
+            <div class="chip" onclick="filterChip(this)">💎 Luxury</div>
+            <div class="chip" onclick="filterChip(this)">📸 Photography</div>
+          </div>
+          <button class="create-group-btn" onclick="document.getElementById('create-group-modal').classList.add('open')">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create Group
+          </button>
+        </div>
+        <div class="groups-grid">
+          <div class="group-card">
+            <div class="group-banner" style="background:linear-gradient(135deg,rgba(108,99,255,0.3),rgba(67,233,123,0.2))">
+              🏔️
+              <div class="group-badge public">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                Public
+              </div>
+            </div>
+            <div class="group-body">
+              <div class="group-name">Himalayan Trekkers</div>
+              <div class="group-desc">Planning the Annapurna Circuit this October. Looking for experienced trekkers at all levels.</div>
+              <div class="group-meta">
+                <div class="member-stack">
+                  <span>AK</span><span>SR</span><span>MV</span><span>+</span>
+                </div>
+                <div class="group-count">1,248 members</div>
+                <div class="group-category">Adventure</div>
+              </div>
+              <button class="join-btn" onclick="toggleJoin(this)">Join Group</button>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="group-banner" style="background:linear-gradient(135deg,rgba(255,101,132,0.3),rgba(249,202,36,0.2))">
+              🍜
+              <div class="group-badge public">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                Public
+              </div>
+            </div>
+            <div class="group-body">
+              <div class="group-name">Street Food Nomads</div>
+              <div class="group-desc">From Bangkok's night markets to Mexico City's tacos — we eat our way around the world.</div>
+              <div class="group-meta">
+                <div class="member-stack">
+                  <span>PT</span><span>YT</span><span>JL</span><span>+</span>
+                </div>
+                <div class="group-count">3,841 members</div>
+                <div class="group-category">Food</div>
+              </div>
+              <button class="join-btn joined" onclick="toggleJoin(this)">✓ Joined</button>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="group-banner" style="background:linear-gradient(135deg,rgba(249,202,36,0.25),rgba(108,99,255,0.2))">
+              📸
+              <div class="group-badge private">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Private
+              </div>
+            </div>
+            <div class="group-body">
+              <div class="group-name">Golden Hour Collective</div>
+              <div class="group-desc">Curated photography trips. Invite-only. Current focus: Lofoten Islands, Norway.</div>
+              <div class="group-meta">
+                <div class="member-stack">
+                  <span>GH</span><span>MK</span><span>PL</span><span>+</span>
+                </div>
+                <div class="group-count">128 members</div>
+                <div class="group-category">Photography</div>
+              </div>
+              <button class="join-btn" onclick="toggleJoin(this)">Request to Join</button>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="group-banner" style="background:linear-gradient(135deg,rgba(67,233,123,0.25),rgba(255,101,132,0.15))">
+              🎒
+              <div class="group-badge public">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                Public
+              </div>
+            </div>
+            <div class="group-body">
+              <div class="group-name">Budget Backpackers Asia</div>
+              <div class="group-desc">Travel Southeast Asia for under $40/day. Tips, routes, hidden gems. No luxury allowed 😄</div>
+              <div class="group-meta">
+                <div class="member-stack">
+                  <span>BT</span><span>CL</span><span>AD</span><span>+</span>
+                </div>
+                <div class="group-count">7,302 members</div>
+                <div class="group-category">Backpacking</div>
+              </div>
+              <button class="join-btn joined" onclick="toggleJoin(this)">✓ Joined</button>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="group-banner" style="background:linear-gradient(135deg,rgba(108,99,255,0.2),rgba(249,202,36,0.3))">
+              💎
+              <div class="group-badge private">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Private
+              </div>
+            </div>
+            <div class="group-body">
+              <div class="group-name">Luxury Escapes Club</div>
+              <div class="group-desc">Private jets, overwater villas, Michelin stars. Curated for discerning travelers who know the difference.</div>
+              <div class="group-meta">
+                <div class="member-stack">
+                  <span>VR</span><span>SM</span><span>KJ</span><span>+</span>
+                </div>
+                <div class="group-count">344 members</div>
+                <div class="group-category">Luxury</div>
+              </div>
+              <button class="join-btn" onclick="toggleJoin(this)">Request to Join</button>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="group-banner" style="background:linear-gradient(135deg,rgba(67,233,123,0.2),rgba(108,99,255,0.25))">
+              🌊
+              <div class="group-badge public">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                Public
+              </div>
+            </div>
+            <div class="group-body">
+              <div class="group-name">Dive the World</div>
+              <div class="group-desc">PADI certified divers sharing the best dive sites globally. Current expedition: Great Barrier Reef.</div>
+              <div class="group-meta">
+                <div class="member-stack">
+                  <span>AC</span><span>RD</span><span>TN</span><span>+</span>
+                </div>
+                <div class="group-count">2,190 members</div>
+                <div class="group-category">Adventure</div>
+              </div>
+              <button class="join-btn" onclick="toggleJoin(this)">Join Group</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT PAGE -->
+      <div class="page" id="page-chat" style="height:100%;overflow:hidden">
+        <div class="chat-layout" style="height:100%">
+          <div class="chat-list">
+            <div class="chat-list-header">
+              Messages
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div class="chat-item active" onclick="selectChat(this,'Aria Chen','🤿',true,'Online now')">
+              <div class="chat-avatar">
+                <div class="chat-avatar-img" style="background:linear-gradient(135deg,#f9ca24,#f0932b)">🤿</div>
+                <div class="chat-status"></div>
+              </div>
+              <div class="chat-info">
+                <div class="chat-name">Aria Chen</div>
+                <div class="chat-preview">The snorkeling was unreal 🐠</div>
+              </div>
+              <div class="chat-meta">
+                <div class="chat-time">2m</div>
+                <div class="unread-badge">2</div>
+              </div>
+            </div>
+            <div class="chat-item" onclick="selectChat(this,'Himalayan Trekkers','🏔️',false,'23 online')">
+              <div class="chat-avatar">
+                <div class="chat-avatar-img" style="background:linear-gradient(135deg,#6C63FF,#43e97b)">🏔️</div>
+                <div class="chat-status"></div>
+              </div>
+              <div class="chat-info">
+                <div class="chat-name">Himalayan Trekkers</div>
+                <div class="chat-preview">Marco: Anyone doing Annapurna?</div>
+              </div>
+              <div class="chat-meta">
+                <div class="chat-time">18m</div>
+                <div class="unread-badge">1</div>
+              </div>
+            </div>
+            <div class="chat-item" onclick="selectChat(this,'Marco Villarreal','🏔️',false,'1h ago')">
+              <div class="chat-avatar">
+                <div class="chat-avatar-img" style="background:linear-gradient(135deg,#6C63FF,#38f9d7)">🏔️</div>
+                <div class="chat-status away"></div>
+              </div>
+              <div class="chat-info">
+                <div class="chat-name">Marco Villarreal</div>
+                <div class="chat-preview">You: Congrats on the summit! 🎉</div>
+              </div>
+              <div class="chat-meta">
+                <div class="chat-time">1h</div>
+              </div>
+            </div>
+            <div class="chat-item" onclick="selectChat(this,'Yuki Tanaka','🌸',false,'3h ago')">
+              <div class="chat-avatar">
+                <div class="chat-avatar-img" style="background:linear-gradient(135deg,#ff6584,#f9ca24)">🌸</div>
+                <div class="chat-status offline"></div>
+              </div>
+              <div class="chat-info">
+                <div class="chat-name">Yuki Tanaka</div>
+                <div class="chat-preview">Best ramen spot in Kyoto 🍜</div>
+              </div>
+              <div class="chat-meta">
+                <div class="chat-time">3h</div>
+              </div>
+            </div>
+            <div class="chat-item" onclick="selectChat(this,'Street Food Nomads','🍜',false,'12 online')">
+              <div class="chat-avatar">
+                <div class="chat-avatar-img" style="background:linear-gradient(135deg,#ff6584,#f0932b)">🍜</div>
+                <div class="chat-status"></div>
+              </div>
+              <div class="chat-info">
+                <div class="chat-name">Street Food Nomads</div>
+                <div class="chat-preview">Priya: Bangkok's Tha Tien market!</div>
+              </div>
+              <div class="chat-meta">
+                <div class="chat-time">5h</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-window">
+            <div class="chat-topbar">
+              <div class="chat-avatar-img" id="chat-avatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f9ca24,#f0932b);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🤿</div>
+              <div class="chat-user-info">
+                <div class="chat-user-name" id="chat-name">Aria Chen</div>
+                <div class="chat-user-status" id="chat-status">● Online now</div>
+              </div>
+              <div class="call-btns">
+                <button class="call-btn" title="Voice call">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.3a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.5h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.1a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 18h1.5v-.92l-1-.16z"/></svg>
+                </button>
+                <button class="call-btn" title="Video call">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                </button>
+                <button class="call-btn" title="Attach file">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="messages" id="messages">
+              <div class="msg received">
+                <div class="msg-avatar">AC</div>
+                <div>
+                  <div class="msg-bubble">Hey! Just got back from the snorkeling. It was INCREDIBLE 🐠 Did you see my post?</div>
+                  <div class="msg-time">2:14 PM</div>
+                </div>
+              </div>
+              <div class="msg sent">
+                <div>
+                  <div class="msg-bubble">Yes!! Those manta rays 😍 How long did you stay out there?</div>
+                  <div class="msg-time">2:16 PM</div>
+                </div>
+              </div>
+              <div class="msg received">
+                <div class="msg-avatar">AC</div>
+                <div>
+                  <div class="msg-bubble">Almost 4 hours lol. The dive instructor had to drag me back to the boat 😂</div>
+                  <div class="msg-time">2:17 PM</div>
+                </div>
+              </div>
+              <div class="msg sent">
+                <div>
+                  <div class="msg-bubble">Hahaha I would do the same. Are you staying for the full week?</div>
+                  <div class="msg-time">2:20 PM</div>
+                </div>
+              </div>
+              <div class="msg received">
+                <div class="msg-avatar">AC</div>
+                <div>
+                  <div class="msg-bubble">The snorkeling was unreal 🐠 I can't believe how clear the water is!</div>
+                  <div class="msg-time">2:31 PM</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="typing-indicator" id="typing-indicator" style="display:none">
+              <div class="typing-dots"><span></span><span></span><span></span></div>
+              <span style="font-size:12px;color:var(--text3)">Aria is typing…</span>
+            </div>
+
+            <div class="chat-input-bar">
+              <button class="call-btn" style="flex-shrink:0" title="Emoji">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              </button>
+              <input class="chat-input" id="chat-text-input" type="text" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMessage()">
+              <button class="send-btn" onclick="sendMessage()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRACKING PAGE -->
+      <div class="page" id="page-tracking">
+        <div class="tracking-layout">
+          <h2 style="font-family:var(--font);font-size:24px;font-weight:800;margin-bottom:20px">Live Journey Tracker</h2>
+
+          <!-- Map -->
+          <div class="map-container">
+            <div class="map-bg"></div>
+            <svg class="map-svg" viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+              <!-- Simplified world map paths -->
+              <path d="M80,80 Q120,60 160,90 Q200,110 240,80 Q280,50 320,80 L340,120 Q300,140 260,120 Q220,100 180,130 Q140,160 100,130 Z" fill="rgba(108,99,255,0.1)" stroke="rgba(108,99,255,0.3)" stroke-width="1"/>
+              <path d="M360,80 Q400,60 440,75 Q480,90 520,70 Q560,50 600,80 L620,150 Q580,170 540,145 Q500,120 460,140 Q420,160 380,140 Z" fill="rgba(255,101,132,0.08)" stroke="rgba(255,101,132,0.2)" stroke-width="1"/>
+              <path d="M640,90 Q680,70 720,85 Q760,100 800,80 L820,160 Q780,180 740,160 Q700,140 660,155 Z" fill="rgba(67,233,123,0.08)" stroke="rgba(67,233,123,0.2)" stroke-width="1"/>
+              <path d="M400,180 Q450,160 500,180 Q530,195 560,180 L570,260 Q530,270 490,255 Q450,240 420,260 Z" fill="rgba(249,202,36,0.08)" stroke="rgba(249,202,36,0.2)" stroke-width="1"/>
+              <!-- Route line -->
+              <path d="M200,110 Q350,60 500,100 Q620,130 700,100" fill="none" stroke="rgba(108,99,255,0.5)" stroke-width="2" stroke-dasharray="8,4"/>
+              <!-- Pins -->
+              <circle cx="200" cy="110" r="8" fill="rgba(249,202,36,0.9)" opacity="0.9"/>
+              <circle cx="200" cy="110" r="14" fill="rgba(249,202,36,0.2)"/>
+              <circle cx="200" cy="110" r="20" fill="rgba(249,202,36,0.08)"/>
+              <text x="215" y="108" fill="rgba(249,202,36,0.95)" font-size="11" font-weight="700" font-family="Syne,sans-serif">✈ JFK</text>
+
+              <circle cx="500" cy="100" r="8" fill="rgba(67,233,123,0.9)"/>
+              <circle cx="500" cy="100" r="14" fill="rgba(67,233,123,0.2)"/>
+              <circle cx="500" cy="100" r="20" fill="rgba(67,233,123,0.08)"/>
+              <text x="515" y="98" fill="rgba(67,233,123,0.95)" font-size="11" font-weight="700" font-family="Syne,sans-serif">🏨 CDG</text>
+
+              <circle cx="700" cy="100" r="8" fill="rgba(108,99,255,0.9)"/>
+              <circle cx="700" cy="100" r="14" fill="rgba(108,99,255,0.2)"/>
+              <circle cx="700" cy="100" r="20" fill="rgba(108,99,255,0.08)"/>
+              <text x="715" y="98" fill="rgba(108,99,255,0.95)" font-size="11" font-weight="700" font-family="Syne,sans-serif">🚂 KYO</text>
+
+              <circle cx="450" cy="220" r="8" fill="rgba(255,101,132,0.9)"/>
+              <circle cx="450" cy="220" r="14" fill="rgba(255,101,132,0.2)"/>
+              <text x="465" y="218" fill="rgba(255,101,132,0.95)" font-size="11" font-weight="700" font-family="Syne,sans-serif">🏨 MLE</text>
+            </svg>
+            <div class="map-label">🗺️ Live Journey Map</div>
+          </div>
+
+          <div class="track-cards">
+            <!-- Flight Card -->
+            <div class="track-card">
+              <div class="track-type">
+                <div class="track-icon">✈️</div>
+                <div>
+                  <div class="track-route">JFK → NRT</div>
+                  <div class="track-sub">AA 173 · Boeing 787</div>
+                </div>
+              </div>
+              <div class="status-badge ontime">● On Time</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:10px">
+                <div><div style="color:var(--text3)">Departure</div><div style="font-weight:700">14:35 JFK</div></div>
+                <div><div style="color:var(--text3)">Arrival</div><div style="font-weight:700">18:20 NRT (+1)</div></div>
+                <div><div style="color:var(--text3)">Duration</div><div style="font-weight:700">13h 45m</div></div>
+                <div><div style="color:var(--text3)">Gate</div><div style="font-weight:700">B22</div></div>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+              <div class="progress-meta"><span>Departed</span><span>62% complete</span><span>Landing in 5h 14m</span></div>
+            </div>
+
+            <!-- Train Card -->
+            <div class="track-card">
+              <div class="track-type">
+                <div class="track-icon">🚂</div>
+                <div>
+                  <div class="track-route">Tokyo → Kyoto</div>
+                  <div class="track-sub">Shinkansen N700 · Car 5</div>
+                </div>
+              </div>
+              <div class="status-badge boarding">● Boarding</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:10px">
+                <div><div style="color:var(--text3)">Departs</div><div style="font-weight:700">09:03 Shinagawa</div></div>
+                <div><div style="color:var(--text3)">Arrives</div><div style="font-weight:700">11:13 Kyoto Sta.</div></div>
+                <div><div style="color:var(--text3)">Duration</div><div style="font-weight:700">2h 10m</div></div>
+                <div><div style="color:var(--text3)">Platform</div><div style="font-weight:700">14B</div></div>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:5%;background:linear-gradient(90deg,var(--accent4),var(--accent))"></div></div>
+              <div class="progress-meta"><span>Boarding now</span><span>5% complete</span><span>Departs in 8m</span></div>
+            </div>
+
+            <!-- Hotel Card -->
+            <div class="track-card">
+              <div class="track-type">
+                <div class="track-icon">🏨</div>
+                <div>
+                  <div class="track-route">The Ritz-Carlton Kyoto</div>
+                  <div class="track-sub">Kamogawa Suite · River View</div>
+                </div>
+              </div>
+              <div class="status-badge ontime">● Confirmed</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:10px">
+                <div><div style="color:var(--text3)">Check-in</div><div style="font-weight:700">May 15, 15:00</div></div>
+                <div><div style="color:var(--text3)">Check-out</div><div style="font-weight:700">May 19, 12:00</div></div>
+                <div><div style="color:var(--text3)">Nights</div><div style="font-weight:700">4 nights</div></div>
+                <div><div style="color:var(--text3)">Booking</div><div style="font-weight:700">RCK-88421</div></div>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:0%;background:linear-gradient(90deg,var(--accent3),var(--accent))"></div></div>
+              <div class="progress-meta"><span>Arriving in</span><span>—</span><span>1 day, 4 hours</span></div>
+            </div>
+
+            <!-- Flight 2 Card -->
+            <div class="track-card">
+              <div class="track-type">
+                <div class="track-icon">✈️</div>
+                <div>
+                  <div class="track-route">MLE → CDG</div>
+                  <div class="track-sub">AF 852 · Airbus A380</div>
+                </div>
+              </div>
+              <div class="status-badge delayed">⚠ Delayed +35m</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:10px">
+                <div><div style="color:var(--text3)">Departure</div><div style="font-weight:700">22:40 MLE</div></div>
+                <div><div style="color:var(--text3)">Arrival</div><div style="font-weight:700">06:55 CDG</div></div>
+                <div><div style="color:var(--text3)">Duration</div><div style="font-weight:700">9h 15m</div></div>
+                <div><div style="color:var(--text3)">Terminal</div><div style="font-weight:700">T2E</div></div>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent4))"></div></div>
+              <div class="progress-meta"><span>Scheduled</span><span>—</span><span>Departs in 6h 22m</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOTELS PAGE -->
+      <div class="page" id="page-hotels">
+        <div class="hotels-layout">
+          <h2 style="font-family:var(--font);font-size:24px;font-weight:800;margin-bottom:20px">Find Hotels</h2>
+          <div class="hotel-search">
+            <div class="hotel-search-grid">
+              <div>
+                <div class="field-label">Destination</div>
+                <input class="field-input" type="text" placeholder="Kyoto, Japan" value="Kyoto, Japan">
+              </div>
+              <div>
+                <div class="field-label">Check-in</div>
+                <input class="field-input" type="date" value="2026-05-15">
+              </div>
+              <div>
+                <div class="field-label">Check-out</div>
+                <input class="field-input" type="date" value="2026-05-19">
+              </div>
+              <div>
+                <div class="field-label">&nbsp;</div>
+                <button class="search-btn">Search</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hotels-grid">
+            <div class="hotel-card">
+              <div class="hotel-img">🏯<div class="hotel-stars">⭐ 4.9</div></div>
+              <div class="hotel-info">
+                <div class="hotel-name">The Ritz-Carlton Kyoto</div>
+                <div class="hotel-loc">📍 Nakagyo Ward, Kyoto</div>
+                <div class="hotel-feats">
+                  <span class="feat-tag">🏊 Pool</span>
+                  <span class="feat-tag">🍽️ Fine Dining</span>
+                  <span class="feat-tag">♨️ Onsen</span>
+                  <span class="feat-tag">🎋 River View</span>
+                </div>
+                <div class="hotel-footer">
+                  <div class="hotel-price">$820<span>/night</span></div>
+                  <button class="book-btn">Book Now</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hotel-card">
+              <div class="hotel-img">⛩️<div class="hotel-stars">⭐ 4.8</div></div>
+              <div class="hotel-info">
+                <div class="hotel-name">Aman Kyoto</div>
+                <div class="hotel-loc">📍 Kita Ward, Kyoto</div>
+                <div class="hotel-feats">
+                  <span class="feat-tag">🌿 Forest Garden</span>
+                  <span class="feat-tag">♨️ Onsen</span>
+                  <span class="feat-tag">🍵 Tea Ceremony</span>
+                </div>
+                <div class="hotel-footer">
+                  <div class="hotel-price">$1,240<span>/night</span></div>
+                  <button class="book-btn">Book Now</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hotel-card">
+              <div class="hotel-img">🌸<div class="hotel-stars">⭐ 4.7</div></div>
+              <div class="hotel-info">
+                <div class="hotel-name">Kyoto Granbell Hotel</div>
+                <div class="hotel-loc">📍 Gion, Kyoto</div>
+                <div class="hotel-feats">
+                  <span class="feat-tag">🚊 Great Transit</span>
+                  <span class="feat-tag">🎭 Gion Access</span>
+                  <span class="feat-tag">☕ Café</span>
+                </div>
+                <div class="hotel-footer">
+                  <div class="hotel-price">$195<span>/night</span></div>
+                  <button class="book-btn">Book Now</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hotel-card">
+              <div class="hotel-img">🎍<div class="hotel-stars">⭐ 4.6</div></div>
+              <div class="hotel-info">
+                <div class="hotel-name">Mimaru Kyoto Nijo</div>
+                <div class="hotel-loc">📍 Nakagyo Ward, Kyoto</div>
+                <div class="hotel-feats">
+                  <span class="feat-tag">🏠 Apartment Suite</span>
+                  <span class="feat-tag">🍳 Full Kitchen</span>
+                  <span class="feat-tag">👨‍👩‍👧 Family Friendly</span>
+                </div>
+                <div class="hotel-footer">
+                  <div class="hotel-price">$148<span>/night</span></div>
+                  <button class="book-btn">Book Now</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hotel-card">
+              <div class="hotel-img">🌿<div class="hotel-stars">⭐ 4.8</div></div>
+              <div class="hotel-info">
+                <div class="hotel-name">Hoshinoya Kyoto</div>
+                <div class="hotel-loc">📍 Arashiyama, Kyoto</div>
+                <div class="hotel-feats">
+                  <span class="feat-tag">🚤 River Access</span>
+                  <span class="feat-tag">♨️ Hot Spring</span>
+                  <span class="feat-tag">🍽️ Kaiseki</span>
+                </div>
+                <div class="hotel-footer">
+                  <div class="hotel-price">$690<span>/night</span></div>
+                  <button class="book-btn">Book Now</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hotel-card">
+              <div class="hotel-img">🏮<div class="hotel-stars">⭐ 4.5</div></div>
+              <div class="hotel-info">
+                <div class="hotel-name">Budget Inn Fushimi</div>
+                <div class="hotel-loc">📍 Fushimi Ward, Kyoto</div>
+                <div class="hotel-feats">
+                  <span class="feat-tag">💰 Best Value</span>
+                  <span class="feat-tag">⛩️ Near Inari</span>
+                  <span class="feat-tag">🛜 Free WiFi</span>
+                </div>
+                <div class="hotel-footer">
+                  <div class="hotel-price">$68<span>/night</span></div>
+                  <button class="book-btn">Book Now</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE PAGE -->
+      <div class="page" id="page-profile">
+        <div class="profile-layout">
+          <div class="profile-banner">
+            <div class="profile-banner-art">🗺️</div>
+            <div class="profile-avatar-wrap">
+              <div class="profile-avatar">AJ</div>
+            </div>
+          </div>
+          <div class="profile-body">
+            <div class="profile-top">
+              <div>
+                <div class="profile-name">Alex Jordan</div>
+                <div class="profile-handle">@alex_jordan · Joined Jan 2023</div>
+              </div>
+              <button class="edit-btn">✏️ Edit Profile</button>
+            </div>
+            <div class="profile-bio">Digital nomad & adventure seeker. 47 countries down, 148 to go 🌍 Currently: Kyoto, Japan 🎋 Working on a travel memoir about solo journeys through Southeast Asia.</div>
+            <div class="profile-tags">
+              <span class="profile-tag">🏔️ Mountains</span>
+              <span class="profile-tag">🤿 Scuba Diving</span>
+              <span class="profile-tag">🍜 Street Food</span>
+              <span class="profile-tag">📸 Photography</span>
+              <span class="profile-tag">🎎 Culture</span>
+              <span class="profile-tag">🚂 Rail Journeys</span>
+            </div>
+            <div class="profile-stats">
+              <div class="stat-box"><div class="stat-num">284</div><div class="stat-label">Posts</div></div>
+              <div class="stat-box"><div class="stat-num">18.4k</div><div class="stat-label">Followers</div></div>
+              <div class="stat-box"><div class="stat-num">892</div><div class="stat-label">Following</div></div>
+              <div class="stat-box"><div class="stat-num">47</div><div class="stat-label">Countries</div></div>
+            </div>
+            <h3 style="font-family:var(--font);font-size:16px;font-weight:700;margin-bottom:12px">Travel Gallery</h3>
+            <div class="photo-grid">
+              <div class="photo-item">🌊</div>
+              <div class="photo-item">🏔️</div>
+              <div class="photo-item">⛩️</div>
+              <div class="photo-item">🦁</div>
+              <div class="photo-item">🏝️</div>
+              <div class="photo-item">🌸</div>
+              <div class="photo-item">🎭</div>
+              <div class="photo-item">🏜️</div>
+              <div class="photo-item">🌋</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RATINGS PAGE -->
+      <div class="page" id="page-ratings">
+        <div class="ratings-layout">
+          <h2 style="font-family:var(--font);font-size:24px;font-weight:800;margin-bottom:4px">Community Ratings</h2>
+          <p style="color:var(--text2);font-size:14px;margin-bottom:24px">Trusted reviews from the TravelMate community</p>
+          <div class="ratings-grid">
+            <!-- Traveler Rating -->
+            <div class="rating-card">
+              <div class="rater-header">
+                <div class="rater-avatar">🤿</div>
+                <div>
+                  <div class="rater-name">Aria Chen</div>
+                  <div class="rater-role">Traveler · 47 trips reviewed</div>
+                </div>
+                <div class="overall-score">4.8<span>/5</span></div>
+              </div>
+              <div class="stars-row">★★★★★</div>
+              <div class="cat-bars">
+                <div class="cat-row"><div class="cat-name">Reliability</div><div class="cat-bar"><div class="cat-fill" style="width:96%"></div></div><div class="cat-score">4.8</div></div>
+                <div class="cat-row"><div class="cat-name">Knowledge</div><div class="cat-bar"><div class="cat-fill" style="width:94%"></div></div><div class="cat-score">4.7</div></div>
+                <div class="cat-row"><div class="cat-name">Friendliness</div><div class="cat-bar"><div class="cat-fill" style="width:100%"></div></div><div class="cat-score">5.0</div></div>
+                <div class="cat-row"><div class="cat-name">Punctuality</div><div class="cat-bar"><div class="cat-fill" style="width:90%"></div></div><div class="cat-score">4.5</div></div>
+                <div class="cat-row"><div class="cat-name">Content</div><div class="cat-bar"><div class="cat-fill" style="width:98%"></div></div><div class="cat-score">4.9</div></div>
+              </div>
+              <div class="review-text">"Aria is one of the most knowledgeable underwater photographers I've met. Her Maldives tips saved our trip completely — we'd never have found the manta station without her recs."</div>
+              <div class="reviews-list">
+                <div class="mini-review">
+                  <div class="mini-rev-header">
+                    <div class="mini-rev-avatar">MV</div>
+                    <div class="mini-rev-name">Marco Villarreal</div>
+                    <div class="mini-rev-stars">★★★★★</div>
+                  </div>
+                  <div class="mini-rev-text">Incredible travel companion. Made the whole Baa Atoll trip unforgettable.</div>
+                </div>
+                <div class="mini-review">
+                  <div class="mini-rev-header">
+                    <div class="mini-rev-avatar">YT</div>
+                    <div class="mini-rev-name">Yuki Tanaka</div>
+                    <div class="mini-rev-stars">★★★★☆</div>
+                  </div>
+                  <div class="mini-rev-text">Great content creator with amazing local knowledge. Highly recommend connecting!</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Group Organizer Rating -->
+            <div class="rating-card">
+              <div class="rater-header">
+                <div class="rater-avatar" style="background:linear-gradient(135deg,#6C63FF,#43e97b)">🏔️</div>
+                <div>
+                  <div class="rater-name">Himalayan Trekkers</div>
+                  <div class="rater-role">Group Organizer · 12 expeditions</div>
+                </div>
+                <div class="overall-score">4.9<span>/5</span></div>
+              </div>
+              <div class="stars-row">★★★★★</div>
+              <div class="cat-bars">
+                <div class="cat-row"><div class="cat-name">Organisation</div><div class="cat-bar"><div class="cat-fill" style="width:98%"></div></div><div class="cat-score">4.9</div></div>
+                <div class="cat-row"><div class="cat-name">Safety</div><div class="cat-bar"><div class="cat-fill" style="width:100%"></div></div><div class="cat-score">5.0</div></div>
+                <div class="cat-row"><div class="cat-name">Value</div><div class="cat-bar"><div class="cat-fill" style="width:92%"></div></div><div class="cat-score">4.6</div></div>
+                <div class="cat-row"><div class="cat-name">Communication</div><div class="cat-bar"><div class="cat-fill" style="width:96%"></div></div><div class="cat-score">4.8</div></div>
+                <div class="cat-row"><div class="cat-name">Experience</div><div class="cat-bar"><div class="cat-fill" style="width:98%"></div></div><div class="cat-score">4.9</div></div>
+              </div>
+              <div class="review-text">"Best organised trek group I've joined. The route planning for Annapurna was meticulous, safety briefings thorough, and the group vibe was extraordinary. Already booked the Everest Base Camp trip."</div>
+              <div class="reviews-list">
+                <div class="mini-review">
+                  <div class="mini-rev-header">
+                    <div class="mini-rev-avatar">SR</div>
+                    <div class="mini-rev-name">Sofia Reyes</div>
+                    <div class="mini-rev-stars">★★★★★</div>
+                  </div>
+                  <div class="mini-rev-text">The Annapurna Circuit was perfectly planned. Not one moment felt improvised.</div>
+                </div>
+                <div class="mini-review">
+                  <div class="mini-rev-header">
+                    <div class="mini-rev-avatar">KN</div>
+                    <div class="mini-rev-name">Kai Nakamura</div>
+                    <div class="mini-rev-stars">★★★★★</div>
+                  </div>
+                  <div class="mini-rev-text">Professional, safe, and genuinely fun. These are the best trekkers in the community.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rating-card">
+              <div class="rater-header">
+                <div class="rater-avatar" style="background:linear-gradient(135deg,#ff6584,#f9ca24)">🌸</div>
+                <div>
+                  <div class="rater-name">Yuki Tanaka</div>
+                  <div class="rater-role">Food & Culture · 83 reviews</div>
+                </div>
+                <div class="overall-score">4.7<span>/5</span></div>
+              </div>
+              <div class="stars-row">★★★★★</div>
+              <div class="cat-bars">
+                <div class="cat-row"><div class="cat-name">Reliability</div><div class="cat-bar"><div class="cat-fill" style="width:94%"></div></div><div class="cat-score">4.7</div></div>
+                <div class="cat-row"><div class="cat-name">Knowledge</div><div class="cat-bar"><div class="cat-fill" style="width:100%"></div></div><div class="cat-score">5.0</div></div>
+                <div class="cat-row"><div class="cat-name">Friendliness</div><div class="cat-bar"><div class="cat-fill" style="width:96%"></div></div><div class="cat-score">4.8</div></div>
+                <div class="cat-row"><div class="cat-name">Punctuality</div><div class="cat-bar"><div class="cat-fill" style="width:88%"></div></div><div class="cat-score">4.4</div></div>
+                <div class="cat-row"><div class="cat-name">Content</div><div class="cat-bar"><div class="cat-fill" style="width:96%"></div></div><div class="cat-score">4.8</div></div>
+              </div>
+              <div class="review-text">"Yuki's knowledge of Kyoto's hidden food scene is unmatched. She took us to a 200-year-old tofu restaurant that had zero online presence. Pure magic."</div>
+            </div>
+
+            <div class="rating-card">
+              <div class="rater-header">
+                <div class="rater-avatar" style="background:linear-gradient(135deg,#f9ca24,#f0932b)">🍜</div>
+                <div>
+                  <div class="rater-name">Street Food Nomads</div>
+                  <div class="rater-role">Group Organizer · 28 food tours</div>
+                </div>
+                <div class="overall-score">4.6<span>/5</span></div>
+              </div>
+              <div class="stars-row">★★★★☆</div>
+              <div class="cat-bars">
+                <div class="cat-row"><div class="cat-name">Organisation</div><div class="cat-bar"><div class="cat-fill" style="width:90%"></div></div><div class="cat-score">4.5</div></div>
+                <div class="cat-row"><div class="cat-name">Food Quality</div><div class="cat-bar"><div class="cat-fill" style="width:98%"></div></div><div class="cat-score">4.9</div></div>
+                <div class="cat-row"><div class="cat-name">Value</div><div class="cat-bar"><div class="cat-fill" style="width:96%"></div></div><div class="cat-score">4.8</div></div>
+                <div class="cat-row"><div class="cat-name">Communication</div><div class="cat-bar"><div class="cat-fill" style="width:88%"></div></div><div class="cat-score">4.4</div></div>
+                <div class="cat-row"><div class="cat-name">Experience</div><div class="cat-bar"><div class="cat-fill" style="width:90%"></div></div><div class="cat-score">4.5</div></div>
+              </div>
+              <div class="review-text">"The Bangkok street food tour was a revelation. 14 different dishes across 6 markets in one evening. Already dreaming about the khao man gai."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /app-body -->
+</div><!-- /app -->
+
+<!-- CREATE GROUP MODAL -->
+<div class="modal-overlay" id="create-group-modal">
+  <div class="modal-box">
+    <div class="modal-title">
+      Create a Group
+      <button class="modal-close" onclick="document.getElementById('create-group-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-field">
+      <div class="field-label">Group Name</div>
+      <input class="field-input" type="text" placeholder="e.g. Sahara Explorers 2026">
+    </div>
+    <div class="modal-field">
+      <div class="field-label">Description</div>
+      <textarea class="modal-textarea" placeholder="What is this group about? Who should join?"></textarea>
+    </div>
+    <div class="modal-field">
+      <div class="field-label">Category</div>
+      <select class="modal-select">
+        <option>🏔️ Adventure & Trekking</option>
+        <option>🏖️ Beach & Diving</option>
+        <option>🍽️ Food & Culinary</option>
+        <option>🎒 Budget Backpacking</option>
+        <option>💎 Luxury Travel</option>
+        <option>📸 Photography</option>
+        <option>🎭 Culture & History</option>
+        <option>🚂 Rail Journeys</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <div class="field-label">Member Limit</div>
+      <input class="field-input" type="number" placeholder="e.g. 50 (leave blank for unlimited)">
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Private Group (invite only)</div>
+      <div class="toggle" id="privacy-toggle" onclick="this.classList.toggle('on')">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Require admin approval to join</div>
+      <div class="toggle on" onclick="this.classList.toggle('on')">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+    <button class="modal-submit" onclick="createGroup()">✈️ Create Group</button>
+  </div>
+</div>
+
+<script>
+// OTP Flow
+let countdownTimer;
+
+function sendOTP() {
+  const phone = document.getElementById('phone-input').value;
+  if (!phone) return;
+  document.getElementById('phone-display').textContent = phone;
+  document.getElementById('otp-step1').style.display = 'none';
+  document.getElementById('otp-step2').style.display = 'block';
+  document.getElementById('d0').focus();
+  startCountdown();
+  // Auto-fill for demo
+  setTimeout(() => {
+    const digits = ['4','2','8','1','9','3'];
+    digits.forEach((d, i) => {
+      setTimeout(() => {
+        const el = document.getElementById('d' + i);
+        el.value = d;
+        el.classList.add('filled');
+        if (i === 5) {
+          setTimeout(() => verifyOTP(), 400);
+        }
+      }, i * 120);
+    });
+  }, 800);
+}
+
+function otpInput(i, el) {
+  el.classList.toggle('filled', el.value.length > 0);
+  if (el.value.length === 1 && i < 5) {
+    document.getElementById('d' + (i + 1)).focus();
+  }
+  if (i === 5 && el.value.length === 1) {
+    const code = Array.from({length:6}, (_,j) => document.getElementById('d'+j).value).join('');
+    if (code.length === 6) setTimeout(() => verifyOTP(), 300);
+  }
+}
+
+function otpBack(i, e) {
+  if (e.key === 'Backspace' && !e.target.value && i > 0) {
+    document.getElementById('d' + (i - 1)).focus();
+  }
+}
+
+function verifyOTP() {
+  document.getElementById('otp-step2').style.display = 'none';
+  document.getElementById('otp-success').style.display = 'flex';
+  clearInterval(countdownTimer);
+  setTimeout(() => {
+    document.getElementById('otp-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+  }, 1800);
+}
+
+function startCountdown() {
+  let t = 30;
+  const el = document.getElementById('countdown');
+  const link = document.getElementById('resend-link');
+  link.style.pointerEvents = 'none';
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    t--;
+    el.textContent = t;
+    if (t <= 0) {
+      clearInterval(countdownTimer);
+      link.innerHTML = 'Resend code';
+      link.style.pointerEvents = 'auto';
+    }
+  }, 1000);
+}
+
+function resendOTP() {
+  document.getElementById('d0').value='';
+  document.getElementById('d1').value='';
+  document.getElementById('d2').value='';
+  document.getElementById('d3').value='';
+  document.getElementById('d4').value='';
+  document.getElementById('d5').value='';
+  document.querySelectorAll('.otp-digit').forEach(d => d.classList.remove('filled'));
+  document.getElementById('resend-link').innerHTML = 'Resend in <span id="countdown">30</span>s';
+  document.getElementById('d0').focus();
+  startCountdown();
+}
+
+// Navigation
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const nav = document.getElementById('nav-' + page);
+  if (nav) nav.classList.add('active');
+}
+
+// Feed interactions
+function toggleLike(btn) {
+  btn.classList.toggle('liked');
+  const countEl = btn.querySelector('.like-count');
+  const svg = btn.querySelector('svg');
+  let n = parseInt(countEl.textContent.replace(/,/g, ''));
+  if (btn.classList.contains('liked')) {
+    svg.setAttribute('fill', 'currentColor');
+    countEl.textContent = (n + 1).toLocaleString();
+  } else {
+    svg.setAttribute('fill', 'none');
+    countEl.textContent = (n - 1).toLocaleString();
+  }
+}
+
+function toggleBookmark(btn) {
+  btn.classList.toggle('bookmarked');
+  btn.querySelector('span, svg').nextSibling;
+  const textNode = Array.from(btn.childNodes).find(n => n.nodeType === 3);
+  if (textNode) textNode.textContent = btn.classList.contains('bookmarked') ? ' Saved' : ' Save';
+}
+
+function toggleFollow(btn) {
+  btn.classList.toggle('following');
+  btn.textContent = btn.classList.contains('following') ? 'Following' : 'Follow';
+}
+
+function toggleSuggestFollow(btn) {
+  const isFollowing = btn.textContent.includes('Following');
+  btn.textContent = isFollowing ? '+ Follow' : '✓ Following';
+  btn.style.background = isFollowing ? '' : 'var(--accent)';
+  btn.style.color = isFollowing ? '' : '#fff';
+}
+
+function filterChip(el) {
+  el.closest('.chips-row, .groups-toolbar').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Groups
+function toggleJoin(btn) {
+  const joining = btn.textContent.includes('Join') || btn.textContent.includes('Request');
+  btn.textContent = joining ? '✓ Joined' : 'Join Group';
+  btn.classList.toggle('joined', joining);
+}
+
+// Chat
+function selectChat(el, name, emoji, online, status) {
+  document.querySelectorAll('.chat-item').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  el.querySelector('.unread-badge') && el.querySelector('.unread-badge').remove();
+  document.getElementById('chat-name').textContent = name;
+  document.getElementById('chat-status').textContent = (online ? '● ' : '') + status;
+  document.getElementById('chat-status').style.color = online ? 'var(--accent3)' : 'var(--text3)';
+  document.getElementById('chat-avatar').textContent = emoji;
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-text-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const msgs = document.getElementById('messages');
+  const msg = document.createElement('div');
+  msg.className = 'msg sent';
+  msg.innerHTML = `<div><div class="msg-bubble">${text}</div><div class="msg-time">Just now</div></div>`;
+  msgs.appendChild(msg);
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  // Simulate reply
+  const ti = document.getElementById('typing-indicator');
+  setTimeout(() => { ti.style.display = 'flex'; msgs.scrollTop = msgs.scrollHeight; }, 600);
+  const replies = [
+    "That sounds amazing! 🌟",
+    "Yes!! When are you heading there? 🗺️",
+    "I was just thinking the same thing 😄",
+    "You have to try the local food there — so good!",
+    "Sending you all the good travel vibes ✈️"
+  ];
+  setTimeout(() => {
+    ti.style.display = 'none';
+    const reply = document.createElement('div');
+    reply.className = 'msg received';
+    reply.innerHTML = `<div class="msg-avatar">AC</div><div><div class="msg-bubble">${replies[Math.floor(Math.random()*replies.length)]}</div><div class="msg-time">Just now</div></div>`;
+    msgs.appendChild(reply);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 2200);
+}
+
+// Group modal
+function createGroup() {
+  document.getElementById('create-group-modal').classList.remove('open');
+  // In real app would submit to backend
+  alert('Group created! 🎉 You can now invite members.');
+}
+</script>
+</body>
+</html>

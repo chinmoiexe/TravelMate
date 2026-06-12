@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file: .env
+    environment:
+      - FLASK_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+      - ./config/firebase-service-account.json:/app/config/firebase-service-account.json:ro
+    depends_on:
+      - redis
+    command: python run.py
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
